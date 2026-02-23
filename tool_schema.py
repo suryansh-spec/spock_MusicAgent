@@ -10,7 +10,7 @@ YOUTUBE_MUSIC_AGENT_SCHEMA = {
                 "queue",
                 "adjust_volume",
                 "query_status",
-                "stop"   # 🔒 REQUIRED
+                "stop"   # REQUIRED
             ]
         },
         "music_query": {
