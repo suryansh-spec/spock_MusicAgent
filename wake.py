@@ -28,18 +28,18 @@ def normalize(text: str) -> str:
 def is_wake_word(text: str) -> bool:
     text_norm = normalize(text)
 
-    # 🛑 Ignore very short phrases (noise / profanity alone)
+    # Ignore very short phrases (noise / profanity alone)
     if len(text.split()) <= 1:
         return False
 
     for wake in WAKE_WORDS:
         wake_norm = normalize(wake)
 
-        # 1️⃣ Fast path: substring
+        # Fast path: substring
         if wake_norm in text_norm:
             return True
 
-        # 2️⃣ Fuzzy match (short words need low threshold)
+        #  Fuzzy match (short words need low threshold)
         ratio = difflib.SequenceMatcher(None, wake_norm, text_norm).ratio()
         if ratio >= 0.4:
             return True
