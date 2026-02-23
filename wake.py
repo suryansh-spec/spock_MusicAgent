@@ -2,7 +2,7 @@ from stt import speech_to_text
 import difflib
 import re
 
-# Include common mishearings ON PURPOSE
+# Include common mishearings ON PURPOSE dont judge me 
 WAKE_WORDS = [
     "spock",
     "spark",
