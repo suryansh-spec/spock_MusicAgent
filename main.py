@@ -13,9 +13,9 @@ import audio_state
 from update_validator import ValidationError
 
 
-# ===============================
-# 🔊 RULE-BASED VOLUME
-# ===============================
+
+# RULE-BASED VOLUME
+
 
 def try_rule_based_volume(command_lower: str):
     match = re.search(r"\b(\d{1,3})\b", command_lower)
@@ -34,9 +34,9 @@ def try_rule_based_volume(command_lower: str):
     return None
 
 
-# ===============================
+
 # CONFIG
-# ===============================
+
 
 GLOBAL_COMMANDS = {"stop", "exit", "quit"}
 CURRENT_VOLUME = 80
@@ -46,18 +46,18 @@ wake_time = 0
 WAKE_TIMEOUT = 5  # seconds
 
 
-# ===============================
+
 # COMMAND HANDLER
-# ===============================
+
 
 def handle_command(command: str):
     global CURRENT_VOLUME
 
     command_lower = command.lower()
 
-    # ----------------------------------
-    # 🔊 FAST PATH: VOLUME (NO LLM)
-    # ----------------------------------
+
+    # FAST PATH: VOLUME (NO LLM)
+
     if any(w in command_lower for w in ["volume", "louder", "quieter", "mute"]):
         result = try_rule_based_volume(command_lower)
 
@@ -77,9 +77,9 @@ def handle_command(command: str):
             print(f"🔊 Volume set to {CURRENT_VOLUME}%", flush=True)
             return
 
-    # ----------------------------------
-    # 🧠 LLM DECISION
-    # ----------------------------------
+
+    #  LLM DECISION
+  
     action = decide_action(command, STATE.snapshot())
 
     try:
@@ -90,18 +90,18 @@ def handle_command(command: str):
 
     intent = params["intent"]
 
-    # ----------------------------------
-    # ⏹ STOP
-    # ----------------------------------
+
+    #  STOP
+
     if intent == "stop":
         print(stop_playback(), flush=True)
         STATE.now_playing = None
         STATE.last_intent = "stop"
         return
 
-    # ----------------------------------
-    # 🔊 VOLUME (LLM FALLBACK)
-    # ----------------------------------
+   
+    #  VOLUME (LLM FALLBACK)
+ 
     if intent == "adjust_volume":
         delta = params.get("volume_change", 0)
         CURRENT_VOLUME = max(0, min(100, STATE.volume + delta))
@@ -111,19 +111,19 @@ def handle_command(command: str):
         print(f"🔊 Volume set to {CURRENT_VOLUME}%", flush=True)
         return
 
-    # ----------------------------------
-    # 🎶 STATUS
-    # ----------------------------------
+
+    #  STATUS
+    
     if intent == "query_status":
         print(f"🎶 Now playing: {STATE.now_playing}", flush=True)
         return
 
-    # ----------------------------------
-    # ▶️ PLAY (mpv ytsearch)
-    # ----------------------------------
+   
+    #  PLAY (mpv ytsearch)
+   
    # ----------------------------------
-# ▶️ PLAY (mpv ytsearch)
-# ----------------------------------
+#  PLAY (mpv ytsearch)
+
     if intent == "play":
         query = params.get("music_query")
     if not query:
@@ -155,9 +155,9 @@ def handle_command(command: str):
 print("🤖 Command not supported.", flush=True)
 
 
-# ===============================
+
 # MAIN LOOP
-# ===============================
+
 
 def main():
     global wake_armed, wake_time
@@ -166,9 +166,9 @@ def main():
 
     while True:
 
-        # ===============================
-        # 🎧 PLAYBACK MODE
-        # ===============================
+       
+        #  PLAYBACK MODE
+    
         if audio_state.AUDIO_PLAYING:
             text = speech_to_text()
             if not text:
@@ -178,7 +178,7 @@ def main():
             text_lower = text.lower().strip()
             print(f"👂 Heard (during playback): {text}", flush=True)
 
-            # 🔴 GLOBAL OVERRIDES (NO WAKE WORD)
+            #  GLOBAL OVERRIDES (NO WAKE WORD)
             if "stop" in text_lower:
                 print(stop_playback(), flush=True)
                 STATE.now_playing = None
@@ -188,7 +188,7 @@ def main():
                 print("👋 Shutting down.", flush=True)
                 return  # 🔥 EXIT PROGRAM CLEANLY
 
-            # 🟡 WAKE WORD COMMANDS
+            #  WAKE WORD COMMANDS
             if is_wake_word(text):
                 remainder = strip_wake_word(text)
                 if remainder:
@@ -196,11 +196,10 @@ def main():
                     handle_command(remainder)
 
             time.sleep(0.2)
-            continue  # 🔥 CRITICAL: DO NOT FALL THROUGH
+            continue  #  CRITICAL: DO NOT FALL THROUGH
 
-        # ===============================
-        # 🎤 IDLE MODE
-        # ===============================
+        #  IDLE MODE
+        
         text = speech_to_text()
         if not text:
             continue
@@ -212,7 +211,7 @@ def main():
         if wake_armed and (now - wake_time > WAKE_TIMEOUT):
             wake_armed = False
 
-        # -------- GLOBAL --------
+        # GLOBAL
         if "stop" in text_lower:
             print(stop_playback(), flush=True)
             wake_armed = False
@@ -220,9 +219,9 @@ def main():
 
         if "exit" in text_lower or "quit" in text_lower:
             print("👋 Shutting down.", flush=True)
-            return  # 🔥 CLEAN EXIT
+            return  #  CLEAN EXIT
 
-        # -------- WAKE WORD --------
+        # WAKE WORD
         if not wake_armed and is_wake_word(text):
             print("🟡 Wake word detected!", flush=True)
             wake_time = now
@@ -235,7 +234,7 @@ def main():
                 wake_armed = True
             continue
 
-        # -------- POST-WAKE --------
+        # POST-WAKE
         if wake_armed:
             print(f"🧠 Command: {text}", flush=True)
             handle_command(text)
